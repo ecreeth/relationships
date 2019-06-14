@@ -1,6 +1,6 @@
 # This package is not finished, it is still being developed.
 
-### To test this package while it is being used you must follow the following steps 
+### To test this package while it is being testing you must follow the following steps 
 
 - update the `"require-dev"` prop in your **composer.json** file with `"ecreeth/relationships": "dev-master"`
 
