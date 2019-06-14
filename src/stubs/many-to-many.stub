@@ -1,0 +1,13 @@
+	/**
+	 * The dummyRelationName that belong to the this model
+	 *
+	 * @param \Illuminate\Database\Eloquent\Model $parent
+	 * @param string $table The intermediate table for the relation
+	 * @param string $foreignPivotKey The foreign key of the parent model
+	 * @param string $relatedPivotKey The associated key of the relation
+	 *
+	 */
+	public function dummyRelationName()
+	{
+	    return $this->belongsToMany('App\DummyModel');
+	}

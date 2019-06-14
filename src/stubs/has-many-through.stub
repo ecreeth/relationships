@@ -1,0 +1,15 @@
+	/**
+	 * Get all of the parentNames for the ThroughDummyRelationName 
+	 *
+   * @param  \Illuminate\Database\Eloquent\Model $farParent The far parent model instance
+   * @param  \Illuminate\Database\Eloquent\Model $throughParent The "through" parent model instance
+   * @param  string $firstKey Foreign key on parentNames table
+   * @param  string $secondKey Foreign key on ThroughDummyRelationName table
+   * @param  string $localKey Local key on this model
+   * @param  string $secondLocalKey Local key on parentNames table
+   *
+	 */
+	public function parentNameThroughDummyRelationName()
+	{
+	    return $this->hasManyThrough('App\ThroughDummyModelName', 'App\parentModelName');
+	}

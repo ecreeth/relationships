@@ -1,0 +1,7 @@
+ /**
+  * Get the CurrentModelName's PolimorphicFuncName
+  */
+  public function PolimorphicFuncName()
+  {
+      return $this->MethodName('App\PolimorphicModelName', 'minable');
+  }

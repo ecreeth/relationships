@@ -1,0 +1,7 @@
+ /**
+  * Get all of the owning FunctionNameable models
+  */
+	public function FunctionNameable()
+	{
+			return $this->morphTo();
+	}

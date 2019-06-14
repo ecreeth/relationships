@@ -1,0 +1,7 @@
+ /**
+	* Get all of the MedelFunName that are assigned this model
+	*/
+	public function MedelFunName()
+	{
+		return $this->morphedByMany('App\ModelName', 'Prefix');
+	}

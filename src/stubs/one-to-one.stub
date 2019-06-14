@@ -1,0 +1,12 @@
+  /**
+   * Get the dummyRelationName record associated with this model
+   *
+   * @param  \Illuminate\Database\Eloquent\Model $parent The parent model instance of the relation
+   * @param  string $foreignKey The foreign key of the parent model
+   * @param  string $localKey The local key of the parent model
+   *
+   */
+	public function dummyRelationName()
+	{
+	    return $this->hasOne('App\DummyModel');
+	}

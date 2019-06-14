@@ -1,0 +1,7 @@
+ /**
+  * Get all of the PolFunName for this model
+  */
+  public function PolFunName()
+  {
+    return $this->morphToMany('App\PolModelName', 'Prefix');
+  }

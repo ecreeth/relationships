@@ -1,0 +1,12 @@
+  /**
+   * Get the dummyRelationName that owns the this model
+   *
+   * @param  \Illuminate\Database\Eloquent\Model $child The child model instance of the relation
+   * @param  string $foreignKey The foreign key of the parent model
+   * @param  string $ownerKey The associated key on the parent model
+   *
+   */
+	public function dummyRelationName()
+	{
+	    return $this->belongsTo('App\DummyModel');
+	}

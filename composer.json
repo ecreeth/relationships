@@ -1,0 +1,27 @@
+{
+    "name": "ecreeth/relationships",
+    "description": "Artisan command to create relationships in Laravel",
+    "keywords": ["Laravel commands","Artisan commands"],
+    "homepage": "https://github.com/ecreeth/relationships",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ecreeth",
+            "email": "luismiguel1730@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "eCreeth\\Relationships\\": "src"
+        }
+    },
+     "extra": {
+        "laravel": {
+            "providers": [
+                "eCreeth\\Relationships\\RelationshipsServiceProvider"
+            ]
+        }
+    }
+}
