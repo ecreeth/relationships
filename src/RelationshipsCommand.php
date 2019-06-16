@@ -138,14 +138,14 @@ class RelationshipsCommand extends Command
         break;
 
       case 'Has One Through':
-
-        // Esto no esta bien, hay que ver que es cada cosa para mostrarla en el comentarario
-        $this->comment("| The has-one-through relationship links models through a single intermediate relation.\n| For example, if each supplier (AS FAR PARENT) has one user (AS PARENT), and each user is associated with one user history (AS THROUGH) record,\n| then the supplier model may access the user's history through the user.");
+      
+        $this->comment("| The has-one-through relationship links models through a single intermediate relation.\n| For example, if each \"supplier\" (AS ACCESSOR) has one \"user\" (AS INTERMATE MODEL), and each user is associated\n| with one user \"history\" (AS A MODEL THAT WE WANT TO ACCESS) record,\n| then the supplier model may access the user's history through the user.");
 
         $this->askForThroughModelNames();
 
         $this->addThroughRelation();
         $this->info("The relationship \"{$type}\" was created");
+        $this->warn("| Make sure that the \"{$this->parent}\" model has the foreign key \"".Str::lower($this->farParent)."_id\" and the \"{$this->throughChild}\" model has the foreign key \"".Str::lower($this->parent)."_id\"");
         break;
 
       case 'Has Many Through':
@@ -206,9 +206,9 @@ class RelationshipsCommand extends Command
   // 
   private function askForThroughModelNames()
   {
-    $this->parent       = $this->ask('What is the parent model instance of the relationship?');
-    $this->farParent    = $this->ask('What is the far model instance of the relationship?');
-    $this->throughChild = $this->ask('What is the through model instance of the relationship?');
+    $this->farParent    = $this->ask('What is the accessor model name of relationship?');
+    $this->parent       = $this->ask('What is the name of the intermediate model of the relationship?');
+    $this->throughChild = $this->ask('What is the name of the model you want to access?');
   }
   // 
   private function askForParentAndChildModels()
