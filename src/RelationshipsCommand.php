@@ -37,18 +37,32 @@ class RelationshipsCommand extends Command
   private $child = '';
 
   /**
-   * The asdfsafd
+   * The $farParent
    *
    * @var string
    */
   private $farParent = '';
 
   /**
-   * The asdfsadf
+   * The $throughChild
    *
    * @var string
    */
   private $throughChild = '';
+  
+  /**
+   * The polymorphicName
+   *
+   * @var string
+   */
+  private polymorphicName = '';
+  
+  /**
+   * The polymorphicCant
+   *
+   * @var string
+   */
+  private polymorphicCant = '';
 
   /**
    * Create a new command instance.
@@ -158,8 +172,7 @@ class RelationshipsCommand extends Command
 
       case 'One To One ( Polymorphic )':
 
-        $polymorphicName  = $this->ask('Polymorphic Model Name');
-        $cant             = parent::ask('Model count for this polimorphic relationship?');
+        $this->askForPolymorphicModelNames();
 
         for ($i = 1; $i <= $cant; $i++) {
           $modelName  = $this->ask("Model name number {$i}");
@@ -171,8 +184,7 @@ class RelationshipsCommand extends Command
 
       case 'One To Many ( Polymorphic )':
 
-        $polymorphicName  = $this->ask('Polymorphic Model Name');
-        $cant             = parent::ask('Model count for this polimorphic relationship?');
+        $this->askForPolymorphicModelNames();
 
         for ($i = 1; $i <= $cant; $i++) {
           $modelName  = $this->ask("Model name number {$i}");
@@ -185,9 +197,7 @@ class RelationshipsCommand extends Command
       case 'Many To Many ( Polymorphic )':
 
         $this->comment("A blog Post and Video model could share a polymorphic relation to a Tag model. Using a many-to-many polymorphic relation \nallows you to have a single list of unique tags that are shared across blog posts and videos.");
-
-        $polymorphicName  = $this->ask('Polymorphic Model Name');
-        $cant             = parent::ask('Model count for this polimorphic relationship?');
+        $this->askForPolymorphicModelNames();
 
         for ($i = 1; $i <= $cant; $i++) {
           $modelName  = $this->ask("Model name number {$i}");
@@ -202,6 +212,12 @@ class RelationshipsCommand extends Command
         return 'not found';
         break;
     }
+  }
+  //
+  private function askForPolymorphicModelNames()
+  {
+     $this->polymorphicName  = $this->ask('Polymorphic Model Name');
+     $this->polymorphicCant  = parent::ask('Model count for this polimorphic relationship?');
   }
   // 
   private function askForThroughModelNames()
