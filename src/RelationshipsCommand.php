@@ -55,14 +55,14 @@ class RelationshipsCommand extends Command
    *
    * @var string
    */
-  private polymorphicName = '';
+  private $polymorphicName = '';
   
   /**
    * The polymorphicCant
    *
    * @var string
    */
-  private polymorphicCant = '';
+  private $polymorphicCant = '';
 
   /**
    * Create a new command instance.
