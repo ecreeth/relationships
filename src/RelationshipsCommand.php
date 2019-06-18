@@ -181,6 +181,7 @@ class RelationshipsCommand extends Command
 
       case 'One To One ( Polymorphic )':
 
+        $this->comment("| A \"one-to-one polymorphic\" relation is similar to a simple \"one-to-one\" relation;\n| however, the target model can belong to more than one type of model on a single association.\n| For example, a blog \"Post\" and a \"User\" may share a polymorphic relation to an \"Image\" model. Using a one-to-one polymorphic relation\n| allows you to have a single list of unique images that are used for both blog posts and user accounts.");
         $this->askForPolymorphicModelNames();
 
         for ($i = 1; $i <= $this->polymorphicCant; $i++) {
@@ -189,10 +190,12 @@ class RelationshipsCommand extends Command
         }
         $this->addPolymorphicToRelation();
         $this->relationshipWasCreated();
+        $this->warnForPolimorphicRelations();
         break;
 
       case 'One To Many ( Polymorphic )':
 
+        $this->comment("| A \"one-to-many polymorphic\" relation is similar to a simple one-to-many relation;\n| however, the target model can belong to more than one type of model on a single association. For example,\n| imagine users of your application can \"comment\" on both \"posts\" and \"videos\". Using polymorphic relationships,\n| you may use a single comments table for both of these scenarios.");
         $this->askForPolymorphicModelNames();
 
         for ($i = 1; $i <= $this->polymorphicCant; $i++) {
@@ -201,6 +204,7 @@ class RelationshipsCommand extends Command
         }
         $this->addPolymorphicToRelation();
         $this->relationshipWasCreated();
+        $this->warnForPolimorphicRelations();
         break;
 
       case 'Many To Many ( Polymorphic )':
@@ -222,6 +226,11 @@ class RelationshipsCommand extends Command
         break;
     }
   }
+   // 
+   private function warnForPolimorphicRelations()
+   {
+    $this->warn("| Make sure that the \"{$this->polymorphicName}\" table model has the foreign keys \"".Str::lower($this->polymorphicName)."able_id\" and \"".Str::lower($this->polymorphicName)."able_type\"");
+   }
   // 
   private function warnForThroughRelations()
   {
@@ -327,7 +336,7 @@ class RelationshipsCommand extends Command
     $modelName             = Str::lower($modelName);
     $polymorphicName       = $plural ? Str::plural(Str::lower($this->polymorphicName)) : Str::lower($this->polymorphicName);
     $polymorphicModelName  = Str::studly($this->polymorphicName);
-    $methodFunName         = $plural ? (Str::lower($this->polymorphicName) . 'able') : $polymorphicName;
+    $methodFunName         = Str::lower($this->polymorphicName) . 'able';
 
     return str_replace(
       ['CurrentModelName', 'PolimorphicFuncName', 'PolimorphicModelName', 'MethodName', 'minable'],
