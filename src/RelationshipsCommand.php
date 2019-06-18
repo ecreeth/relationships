@@ -129,7 +129,7 @@ class RelationshipsCommand extends Command
         $this->addInverseRelationToChild('one-to-one-inverse');
         
         $this->relationshipWasCreated();
-        $this->warn("\n| Eloquent determines the foreign key of the relationship based on the model name.\n| In this case, the {$this->child} model is automatically assumed to have a " . Str::lower($this->parent) . "_id foreign key.\n| If you wish to override this convention, you may pass a second argument to the hasOne method in the {$this->parent} model.");
+        $this->warnForSimpleRelations();
         break;
 
       case 'One To Many':
@@ -141,7 +141,7 @@ class RelationshipsCommand extends Command
         $this->addInverseRelationToChild('one-to-one-inverse');
 
         $this->relationshipWasCreated();
-        $this->warn("\n| Eloquent determines the foreign key of the relationship based on the model name.\n| In this case, the {$this->child} model is automatically assumed to have a " . Str::lower($this->parent) . "_id foreign key.\n");
+        $this->warnForSimpleRelations();
         break;  
 
       case 'Many To Many':
@@ -228,15 +228,21 @@ class RelationshipsCommand extends Command
   }
 
   // Este metodo es el encargado de...
+  private function warnForSimpleRelations()
+  {
+    $this->warn("\n| Eloquent determines the foreign key of the relationship based on the model name.\n| In this case, the {$this->child} model is automatically assumed to have a " . Str::lower($this->parent) . "_id foreign key.\n");
+  }
+
+  // Este metodo es el encargado de...
   private function warnForPolimorphicRelations()
   {
-    $this->warn("| Make sure that the \"{$this->polymorphicName}\" table model has the foreign keys \"".Str::lower($this->polymorphicName)."able_id\" and \"".Str::lower($this->polymorphicName)."able_type\"");
+    $this->warn("| Make sure that the \"{$this->polymorphicName}\" table model has the foreign keys \"".Str::lower($this->polymorphicName)."able_id\" and \"".Str::lower($this->polymorphicName)."able_type\"\n");
   }
 
   // Este metodo es el encargado de...
   private function warnForThroughRelations()
   {
-    $this->warn("| Make sure that the \"{$this->parent}\" model has the foreign key \"".Str::lower($this->farParent)."_id\" and the \"{$this->throughChild}\" model has the foreign key \"".Str::lower($this->parent)."_id\"");
+    $this->warn("| Make sure that the \"{$this->parent}\" model has the foreign key \"".Str::lower($this->farParent)."_id\" and the \"{$this->throughChild}\" model has the foreign key \"".Str::lower($this->parent)."_id\"\n");
   }
 
   // Este metodo es el encargado de...
@@ -271,8 +277,8 @@ class RelationshipsCommand extends Command
   private function addInverseManyToManyPolymorphic(string $modelName)
   {
     $path = app_path("{$this->polymorphicName}.php");
-    File::append(
-      $path,
+
+    File::append($path,
       $this->replaceInverseManyToManyPolymorphicNames($modelName)
     );
   }
@@ -294,8 +300,8 @@ class RelationshipsCommand extends Command
   private function addManyToManyPolymorphic(string $modelName)
   {
     $path = app_path("{$modelName}.php");
-    File::append(
-      $path,
+
+    File::append($path,
       $this->replaceManyToManyPolymorphicNames()
     );
   }
@@ -304,12 +310,11 @@ class RelationshipsCommand extends Command
   private function replaceManyToManyPolymorphicNames()
   {
     $polFucName    = Str::plural(Str::lower($this->polymorphicName));
-    $polModelName  = Str::studly($this->polymorphicName);
     $prefix        = Str::lower($this->polymorphicName) . 'able';
 
     return str_replace(
       ['PolFunName', 'PolModelName', 'Prefix'],
-      [$polFucName, $polModelName, $prefix],
+      [$polFucName, $this->polymorphicName, $prefix],
       File::get(__DIR__ . "/stubs/many-to-many-polymorphic.stub")
     );
   }
@@ -388,6 +393,7 @@ class RelationshipsCommand extends Command
   private function addThroughRelation(string $stub = 'has-one-through')
   {
     $path = app_path("{$this->farParent}.php");
+
     File::append($path,
       $this->replaceThroughRelationNames($stub)
     );
