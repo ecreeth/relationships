@@ -23,6 +23,13 @@ class RelationshipsCommand extends Command
   protected $description = 'Create model relationships';
 
   /**
+   * Relationship type.
+   *
+   * @var string
+   */
+  private $type = '';
+
+  /**
    * The parent model instance of the relationship.
    *
    * @var string
@@ -93,7 +100,7 @@ class RelationshipsCommand extends Command
    */
   public function handle()
   {
-    $type = $this->choice(
+    $this->type = $this->choice(
       'Choose the type of relationship',
       [
         'One To One',
@@ -107,12 +114,12 @@ class RelationshipsCommand extends Command
       ],
       0
     );
-    echo $this->verifyRelationType($type);
+    $this->verifyRelationType();
   }
 
-  private function verifyRelationType(string $type)
+  private function verifyRelationType()
   {
-    switch ($type) {
+    switch ($this->type) {
       case 'One To One':
 
         $this->comment("| A one-to-one relationship is a very basic relation. For example, a User model might be associated with one Phone.");
@@ -121,7 +128,7 @@ class RelationshipsCommand extends Command
         $this->addRelation('one-to-one');
         $this->addInverseRelation('one-to-one-inverse');
         
-        $this->info("The relationship \"{$type}\" was created");
+        $this->relationshipWasCreated();
         $this->warn("\n| Eloquent determines the foreign key of the relationship based on the model name.\n| In this case, the {$this->child} model is automatically assumed to have a " . Str::lower($this->parent) . "_id foreign key.\n| If you wish to override this convention, you may pass a second argument to the hasOne method in the {$this->parent} model.");
         break;
 
@@ -133,7 +140,7 @@ class RelationshipsCommand extends Command
         $this->addRelation('one-to-many', true);
         $this->addInverseRelation('one-to-one-inverse');
 
-        $this->info("The relationship \"{$type}\" was created");
+        $this->relationshipWasCreated();
         $this->warn("\n| Eloquent determines the foreign key of the relationship based on the model name.\n| In this case, the {$this->child} model is automatically assumed to have a " . Str::lower($this->parent) . "_id foreign key.\n");
         break;  
 
@@ -147,7 +154,7 @@ class RelationshipsCommand extends Command
         $this->addRelation('many-to-many', true);
         $this->addInverseRelation('many-to-many', true);
 
-        $this->info("The relationship \"{$type}\" was created");
+        $this->relationshipWasCreated();
         $this->warn("\n| Make sure that the pivot table contains the columns of \"".Str::lower($this->parent)."_id\" & \"".Str::lower($this->child)."_id\"");
         break;
 
@@ -158,7 +165,7 @@ class RelationshipsCommand extends Command
         $this->askForThroughModelNames();
 
         $this->addThroughRelation();
-        $this->info("The relationship \"{$type}\" was created");
+        $this->relationshipWasCreated();
         $this->warn("| Make sure that the \"{$this->parent}\" model has the foreign key \"".Str::lower($this->farParent)."_id\" and the \"{$this->throughChild}\" model has the foreign key \"".Str::lower($this->parent)."_id\"");
         break;
 
@@ -167,31 +174,31 @@ class RelationshipsCommand extends Command
         $this->askForThroughModelNames();
 
         $this->addThroughRelation('has-many-through');
-        $this->info("The relationship \"{$type}\" was created");
+        $this->relationshipWasCreated();
         break;
 
       case 'One To One ( Polymorphic )':
 
         $this->askForPolymorphicModelNames();
 
-        for ($i = 1; $i <= $cant; $i++) {
+        for ($i = 1; $i <= $this->polymorphicCant; $i++) {
           $modelName  = $this->ask("Model name number {$i}");
-          $this->addPolymorphicOneRelation($modelName, $polymorphicName);
+          $this->addPolymorphicOneRelation($modelName);
         }
-        $this->addPolymorphicToRelation($polymorphicName);
-        return $this->info("The relationship \"{$type}\" was created");
+        $this->addPolymorphicToRelation();
+        $this->relationshipWasCreated();
         break;
 
       case 'One To Many ( Polymorphic )':
 
         $this->askForPolymorphicModelNames();
 
-        for ($i = 1; $i <= $cant; $i++) {
+        for ($i = 1; $i <= $this->polymorphicCant; $i++) {
           $modelName  = $this->ask("Model name number {$i}");
-          $this->addPolymorphicOneRelation($modelName, $polymorphicName, 'morphMany', true);
+          $this->addPolymorphicOneRelation($modelName, 'morphMany', true);
         }
-        $this->addPolymorphicToRelation($polymorphicName);
-        return $this->info("The relationship \"{$type}\" was created");
+        $this->addPolymorphicToRelation();
+        $this->relationshipWasCreated();
         break;
 
       case 'Many To Many ( Polymorphic )':
@@ -199,19 +206,24 @@ class RelationshipsCommand extends Command
         $this->comment("A blog Post and Video model could share a polymorphic relation to a Tag model. Using a many-to-many polymorphic relation \nallows you to have a single list of unique tags that are shared across blog posts and videos.");
         $this->askForPolymorphicModelNames();
 
-        for ($i = 1; $i <= $cant; $i++) {
+        for ($i = 1; $i <= $this->polymorphicCant; $i++) {
           $modelName  = $this->ask("Model name number {$i}");
-          $this->addManyToManyPolymorphic($polymorphicName, $modelName);
-          $this->addInverseManyToManyPolymorphic($polymorphicName, $modelName);
+          $this->addManyToManyPolymorphic($modelName);
+          $this->addInverseManyToManyPolymorphic($modelName);
         }
 
-        return $this->info("The relationship \"{$type}\" was created");
+        $this->relationshipWasCreated();
         break;
 
       default:
         return 'not found';
         break;
     }
+  }
+  // 
+  private function relationshipWasCreated()
+  {
+    $this->info("The relationship \"{$this->type}\" was created");
   }
   //
   private function askForPolymorphicModelNames()
@@ -233,18 +245,18 @@ class RelationshipsCommand extends Command
     $this->child  = $this->ask('What is the child model instance of the relationship?');
   }
   ///////////////
-  private function addInverseManyToManyPolymorphic(string $polymorphicName, string $modelName)
+  private function addInverseManyToManyPolymorphic(string $modelName)
   {
-    $path = app_path("{$polymorphicName}.php");
+    $path = app_path("{$this->polymorphicName}.php");
     File::append(
       $path,
-      $this->replaceInverseManyToManyPolymorphicNames($polymorphicName, $modelName)
+      $this->replaceInverseManyToManyPolymorphicNames($modelName)
     );
   }
-  private function replaceInverseManyToManyPolymorphicNames(string $polymorphicName, string $modelName)
+  private function replaceInverseManyToManyPolymorphicNames(string $modelName)
   {
     $modelFunName    = Str::plural(Str::lower($modelName));
-    $prefix          = Str::lower($polymorphicName) . 'able';
+    $prefix          = Str::lower($this->polymorphicName) . 'able';
 
     return str_replace(
       ['MedelFunName', 'ModelName', 'Prefix'],
@@ -252,19 +264,19 @@ class RelationshipsCommand extends Command
       File::get(__DIR__ . "/stubs/many-to-many-polymorphic-inverse.stub")
     );
   }
-  private function addManyToManyPolymorphic(string $polymorphicName, string $modelName)
+  private function addManyToManyPolymorphic(string $modelName)
   {
     $path = app_path("{$modelName}.php");
     File::append(
       $path,
-      $this->replaceManyToManyPolymorphicNames($polymorphicName)
+      $this->replaceManyToManyPolymorphicNames()
     );
   }
-  private function replaceManyToManyPolymorphicNames(string $polName)
+  private function replaceManyToManyPolymorphicNames()
   {
-    $polFucName    = Str::plural(Str::lower($polName));
-    $polModelName  = Str::studly($polName);
-    $prefix        = Str::lower($polName) . 'able';
+    $polFucName    = Str::plural(Str::lower($this->polymorphicName));
+    $polModelName  = Str::studly($this->polymorphicName);
+    $prefix        = Str::lower($this->polymorphicName) . 'able';
 
     return str_replace(
       ['PolFunName', 'PolModelName', 'Prefix'],
@@ -295,20 +307,20 @@ class RelationshipsCommand extends Command
   }
 
   // /////////////////////////////// One To One ( Polymorphic )
-  private function addPolymorphicOneRelation(string $modelName, string $polymorphicName, string $method = 'morphOne', bool $plural = false)
+  private function addPolymorphicOneRelation(string $modelName, string $method = 'morphOne', bool $plural = false)
   {
     $path = app_path("{$modelName}.php");
     File::append(
       $path,
-      $this->replacePolymorphicOneRelationNames($modelName, $polymorphicName, $method, $plural)
+      $this->replacePolymorphicOneRelationNames($modelName, $method, $plural)
     );
   }
-  private function replacePolymorphicOneRelationNames(string $modelName, string $polymName, string $method, bool $plural)
+  private function replacePolymorphicOneRelationNames(string $modelName, string $method, bool $plural)
   {
     $modelName             = Str::lower($modelName);
-    $polymorphicName       = $plural ? Str::plural(Str::lower($polymName)) : Str::lower($polymName);
-    $polymorphicModelName  = Str::studly($polymName);
-    $methodFunName         = $plural ? (Str::lower($polymName) . 'able') : $polymorphicName;
+    $polymorphicName       = $plural ? Str::plural(Str::lower($this->polymorphicName)) : Str::lower($this->polymorphicName);
+    $polymorphicModelName  = Str::studly($this->polymorphicName);
+    $methodFunName         = $plural ? (Str::lower($this->polymorphicName) . 'able') : $polymorphicName;
 
     return str_replace(
       ['CurrentModelName', 'PolimorphicFuncName', 'PolimorphicModelName', 'MethodName', 'minable'],
@@ -316,17 +328,17 @@ class RelationshipsCommand extends Command
       File::get(__DIR__ . "/stubs/one-to-one-polymorphic-one.stub")
     );
   }
-  private function addPolymorphicToRelation(string $polymorphicName)
+  private function addPolymorphicToRelation()
   {
-    $path = app_path("{$polymorphicName}.php");
+    $path = app_path("{$this->polymorphicName}.php");
     File::append(
       $path,
-      $this->replacePolymorphicRelationNames($polymorphicName)
+      $this->replacePolymorphicRelationNames()
     );
   }
-  private function replacePolymorphicRelationNames(string $polymorphicName)
+  private function replacePolymorphicRelationNames()
   {
-    $polymorphicName = Str::lower($polymorphicName);
+    $polymorphicName = Str::lower($this->polymorphicName);
 
     return str_replace(
       ['FunctionName'],
