@@ -166,15 +166,17 @@ class RelationshipsCommand extends Command
 
         $this->addThroughRelation();
         $this->relationshipWasCreated();
-        $this->warn("| Make sure that the \"{$this->parent}\" model has the foreign key \"".Str::lower($this->farParent)."_id\" and the \"{$this->throughChild}\" model has the foreign key \"".Str::lower($this->parent)."_id\"");
+        $this->warnForThroughRelations();
         break;
 
       case 'Has Many Through':
 
+        $this->comment("| The \"has-many-through\" relationship provides a convenient shortcut for accessing distant relations via an intermediate relation.\n| For example, a \"Country\" model might have many \"Post\" models through an intermediate \"User\" model.\n| In this example, you could easily gather all blog posts for a given country.");
         $this->askForThroughModelNames();
 
         $this->addThroughRelation('has-many-through');
         $this->relationshipWasCreated();
+        $this->warnForThroughRelations();
         break;
 
       case 'One To One ( Polymorphic )':
@@ -219,6 +221,11 @@ class RelationshipsCommand extends Command
         return 'not found';
         break;
     }
+  }
+  // 
+  private function warnForThroughRelations()
+  {
+    $this->warn("| Make sure that the \"{$this->parent}\" model has the foreign key \"".Str::lower($this->farParent)."_id\" and the \"{$this->throughChild}\" model has the foreign key \"".Str::lower($this->parent)."_id\"");
   }
   // 
   private function relationshipWasCreated()
@@ -362,11 +369,10 @@ class RelationshipsCommand extends Command
     $parent            = Str::studly($this->parent);
     $parentName        = Str::lower($this->parent);
     $throughName       = Str::studly($this->throughChild);
-    $throughModelName  = Str::studly($this->throughChild);
 
     return str_replace(
       ['parentName', 'ThroughDummyRelationName', 'ThroughDummyModelName', 'parentModelName'],
-      [$parentName, $throughName, $throughModelName, $parent],
+      [$parentName, $throughName, $throughName, $parent],
       File::get(__DIR__ . "/stubs/{$stub}.stub")
     );
   }
