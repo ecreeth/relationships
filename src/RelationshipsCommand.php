@@ -125,8 +125,8 @@ class RelationshipsCommand extends Command
         $this->comment("| A one-to-one relationship is a very basic relation. For example, a User model might be associated with one Phone.");
         $this->askForParentAndChildModels();
 
-        $this->addRelation('one-to-one');
-        $this->addInverseRelation('one-to-one-inverse');
+        $this->addRelationToParentModel('one-to-one');
+        $this->addInverseRelationToChild('one-to-one-inverse');
         
         $this->relationshipWasCreated();
         $this->warn("\n| Eloquent determines the foreign key of the relationship based on the model name.\n| In this case, the {$this->child} model is automatically assumed to have a " . Str::lower($this->parent) . "_id foreign key.\n| If you wish to override this convention, you may pass a second argument to the hasOne method in the {$this->parent} model.");
@@ -137,8 +137,8 @@ class RelationshipsCommand extends Command
         $this->comment("| A one-to-many relationship is used to define relationships where a single model owns any amount of other models.\n| For example, a blog post may have an infinite number of comments.");
         $this->askForParentAndChildModels();
 
-        $this->addRelation('one-to-many', true);
-        $this->addInverseRelation('one-to-one-inverse');
+        $this->addRelationToParentModel('one-to-many', true);
+        $this->addInverseRelationToChild('one-to-one-inverse');
 
         $this->relationshipWasCreated();
         $this->warn("\n| Eloquent determines the foreign key of the relationship based on the model name.\n| In this case, the {$this->child} model is automatically assumed to have a " . Str::lower($this->parent) . "_id foreign key.\n");
@@ -151,8 +151,8 @@ class RelationshipsCommand extends Command
         $this->parent = $this->ask('What is the first model name instance of the relationship?');
         $this->child  = $this->ask('What is the second model name instance of the relationship?');
 
-        $this->addRelation('many-to-many', true);
-        $this->addInverseRelation('many-to-many', true);
+        $this->addRelationToParentModel('many-to-many', true);
+        $this->addInverseRelationToChild('many-to-many', true);
 
         $this->relationshipWasCreated();
         $this->warn("\n| Make sure that the pivot table contains the columns of \"".Str::lower($this->parent)."_id\" & \"".Str::lower($this->child)."_id\"");
@@ -226,41 +226,48 @@ class RelationshipsCommand extends Command
         break;
     }
   }
-   // 
-   private function warnForPolimorphicRelations()
-   {
+
+  // Este metodo es el encargado de...
+  private function warnForPolimorphicRelations()
+  {
     $this->warn("| Make sure that the \"{$this->polymorphicName}\" table model has the foreign keys \"".Str::lower($this->polymorphicName)."able_id\" and \"".Str::lower($this->polymorphicName)."able_type\"");
-   }
-  // 
+  }
+
+  // Este metodo es el encargado de...
   private function warnForThroughRelations()
   {
     $this->warn("| Make sure that the \"{$this->parent}\" model has the foreign key \"".Str::lower($this->farParent)."_id\" and the \"{$this->throughChild}\" model has the foreign key \"".Str::lower($this->parent)."_id\"");
   }
-  // 
+
+  // Este metodo es el encargado de...
   private function relationshipWasCreated()
   {
     $this->info("The relationship \"{$this->type}\" was created");
   }
-  //
+
+  // Este metodo es el encargado de...
   private function askForPolymorphicModelNames()
   {
      $this->polymorphicName  = $this->ask('Polymorphic Model Name');
      $this->polymorphicCant  = parent::ask('Model count for this polimorphic relationship?');
   }
-  // 
+
+  // Este metodo es el encargado de...
   private function askForThroughModelNames()
   {
     $this->farParent    = $this->ask('What is the accessor model name of relationship?');
     $this->parent       = $this->ask('What is the name of the intermediate model of the relationship?');
     $this->throughChild = $this->ask('What is the name of the model you want to access?');
   }
-  // 
+
+  // Este metodo es el encargado de...
   private function askForParentAndChildModels()
   {
     $this->parent = $this->ask('What is the parent model instance of the relationship?');
     $this->child  = $this->ask('What is the child model instance of the relationship?');
   }
-  ///////////////
+
+  // Este metodo es el encargado de...
   private function addInverseManyToManyPolymorphic(string $modelName)
   {
     $path = app_path("{$this->polymorphicName}.php");
@@ -269,6 +276,8 @@ class RelationshipsCommand extends Command
       $this->replaceInverseManyToManyPolymorphicNames($modelName)
     );
   }
+
+  // Este metodo es el encargado de...
   private function replaceInverseManyToManyPolymorphicNames(string $modelName)
   {
     $modelFunName    = Str::plural(Str::lower($modelName));
@@ -280,6 +289,8 @@ class RelationshipsCommand extends Command
       File::get(__DIR__ . "/stubs/many-to-many-polymorphic-inverse.stub")
     );
   }
+
+  // Este metodo es el encargado de...
   private function addManyToManyPolymorphic(string $modelName)
   {
     $path = app_path("{$modelName}.php");
@@ -288,6 +299,8 @@ class RelationshipsCommand extends Command
       $this->replaceManyToManyPolymorphicNames()
     );
   }
+
+  // Este metodo es el encargado de...
   private function replaceManyToManyPolymorphicNames()
   {
     $polFucName    = Str::plural(Str::lower($this->polymorphicName));
@@ -300,8 +313,9 @@ class RelationshipsCommand extends Command
       File::get(__DIR__ . "/stubs/many-to-many-polymorphic.stub")
     );
   }
-  // ////////////////
+  
 
+  // Encargado de limpiar y verificar los nombres de los modelos.
   private function cleanModelName(string $name): string
   {
     if (is_numeric($name)) {
@@ -323,96 +337,104 @@ class RelationshipsCommand extends Command
   }
 
   // /////////////////////////////// One To One ( Polymorphic )
+
+  
+  // Este metodo es el encargado de...
   private function addPolymorphicOneRelation(string $modelName, string $method = 'morphOne', bool $plural = false)
   {
     $path = app_path("{$modelName}.php");
-    File::append(
-      $path,
+
+    File::append($path,
       $this->replacePolymorphicOneRelationNames($modelName, $method, $plural)
     );
   }
+
+  // Este metodo es el encargado de...
   private function replacePolymorphicOneRelationNames(string $modelName, string $method, bool $plural)
   {
     $modelName             = Str::lower($modelName);
     $polymorphicName       = $plural ? Str::plural(Str::lower($this->polymorphicName)) : Str::lower($this->polymorphicName);
-    $polymorphicModelName  = Str::studly($this->polymorphicName);
     $methodFunName         = Str::lower($this->polymorphicName) . 'able';
 
     return str_replace(
       ['CurrentModelName', 'PolimorphicFuncName', 'PolimorphicModelName', 'MethodName', 'minable'],
-      [$modelName, $polymorphicName, $polymorphicModelName, $method, $methodFunName],
+      [$modelName, $polymorphicName, $this->polymorphicName, $method, $methodFunName],
       File::get(__DIR__ . "/stubs/one-to-one-polymorphic-one.stub")
     );
   }
+
+  // Este metodo es el encargado de...
   private function addPolymorphicToRelation()
   {
     $path = app_path("{$this->polymorphicName}.php");
-    File::append(
-      $path,
+
+    File::append($path,
       $this->replacePolymorphicRelationNames()
     );
   }
+
+  // Este metodo es el encargado de reemplazar los nombres de los archivos stubs para las 
+  // relaciones "Polymorphics", a los nombres de los modelos.
   private function replacePolymorphicRelationNames()
   {
     $polymorphicName = Str::lower($this->polymorphicName);
 
-    return str_replace(
-      ['FunctionName'],
-      [$polymorphicName],
+    return str_replace('FunctionName', $polymorphicName,
       File::get(__DIR__ . "/stubs/one-to-one-polymorphic-to.stub")
     );
   }
-  // ///////////////////////////////
 
+  // Este metodo es el encargado de...
   private function addThroughRelation(string $stub = 'has-one-through')
   {
     $path = app_path("{$this->farParent}.php");
-    File::append(
-      $path,
+    File::append($path,
       $this->replaceThroughRelationNames($stub)
     );
   }
-
+   
+  // Este metodo es el encargado de reemplazar los nombres de los archivos stubs para 
+  // las relaciones "Throughs", a los nombres de los modelos.
   private function replaceThroughRelationNames(string $stub)
   {
-    $parent            = Str::studly($this->parent);
-    $parentName        = Str::lower($this->parent);
-    $throughName       = Str::studly($this->throughChild);
+    $parentName = Str::lower($this->parent);
 
     return str_replace(
       ['parentName', 'ThroughDummyRelationName', 'ThroughDummyModelName', 'parentModelName'],
-      [$parentName, $throughName, $throughName, $parent],
+      [$parentName, $this->throughChild, $this->throughChild, $this->parent],
       File::get(__DIR__ . "/stubs/{$stub}.stub")
     );
   }
-  // ////////////////////////////////////
 
-  private function addInverseRelation(string $stub, bool $plural = false)
-  {
-    $path = app_path("{$this->child}.php");
-    File::append(
-      $path,
-      $this->replaceRelationNames($stub, $this->parent, $plural)
-    );
-  }
-
-  private function addRelation(string $stub, bool $plural = false)
+  // Este metodo es el encargado de agregar la relacion al modelo padre.
+  private function addRelationToParentModel(string $stub, bool $plural = false)
   {
     $path = app_path("{$this->parent}.php");
-    File::append(
-      $path,
-      $this->replaceRelationNames($stub, $this->child, $plural)
+
+    File::append($path,
+      $this->replaceSimpleRelationNames($stub, $this->child, $plural)
     );
   }
 
-  private function replaceRelationNames(string $stub, string $modelName, bool $plural = false)
+  // Este metodo es el encargado de agregar la relacion inversa para el modelo hijo.
+  private function addInverseRelationToChild(string $stub, bool $plural = false)
   {
-    $modelName      = Str::studly($modelName);
-    $namefunction   = $plural ? Str::plural(Str::lower($modelName)) : Str::lower($modelName);
+    $path = app_path("{$this->child}.php");
+
+    File::append($path,
+      $this->replaceSimpleRelationNames($stub, $this->parent, $plural)
+    );
+  }
+
+  // Este metodo es el encargado de reemplazar los nombres de los archivos stubs para las 
+  // relaciones "Simples", a los nombres de los modelos.
+  private function replaceSimpleRelationNames(string $stub, string $mname, bool $plural = false)
+  {
+    $namefunction = $plural ? Str::plural(Str::lower($m_name)) : Str::lower($m_name);
 
     return str_replace(
       ['DummyModel', 'dummyRelationName'],
-      [$modelName, $namefunction],
+      [$m_name, $namefunction],
       File::get(__DIR__ . "/stubs/{$stub}.stub")
     );
   }
