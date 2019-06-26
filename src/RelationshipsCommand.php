@@ -149,24 +149,22 @@ class RelationshipsCommand extends Command
       case 'Many To Many':
 
         $this->comment(RelationComment::manyToMany());
-
-        $this->parent = $this->ask('What is the first model name instance of the relationship?');
-        $this->child  = $this->ask('What is the second model name instance of the relationship?');
+        $this->askForManyToManyModels();
 
         $this->addRelationToParentModel('many-to-many', true);
         $this->addInverseRelationToChild('many-to-many', true);
 
         $this->relationshipWasCreated();
-        $this->warn("\n| Make sure that the pivot table contains the columns of \"".Str::lower($this->parent)."_id\" & \"".Str::lower($this->child)."_id\"");
+        $this->warnForManyToMany();
         break;
 
       case 'Has One Through':
       
         $this->comment(RelationComment::hasOneThrough());
-
         $this->askForThroughModelNames();
 
         $this->addThroughRelation();
+
         $this->relationshipWasCreated();
         $this->warnForThroughRelations();
         break;
@@ -177,6 +175,7 @@ class RelationshipsCommand extends Command
         $this->askForThroughModelNames();
 
         $this->addThroughRelation('has-many-through');
+
         $this->relationshipWasCreated();
         $this->warnForThroughRelations();
         break;
@@ -186,11 +185,15 @@ class RelationshipsCommand extends Command
         $this->comment(RelationComment::oneToOnePolymorphic());
         $this->askForPolymorphicModelNames();
 
-        for ($i = 1; $i <= $this->polymorphicCant; $i++) {
-          $modelName  = $this->ask("Model name number {$i}");
+        for ($i = 1; $i <= $this->polymorphicCant; $i++) 
+        {
+          $modelName  = $this->ask("Write the model name number [{$i}]");
+
           $this->addPolymorphicOneRelation($modelName);
         }
+
         $this->addPolymorphicToRelation();
+
         $this->relationshipWasCreated();
         $this->warnForPolimorphicRelations();
         break;
@@ -200,11 +203,15 @@ class RelationshipsCommand extends Command
         $this->comment(RelationComment::oneToManyPolymorphic());
         $this->askForPolymorphicModelNames();
 
-        for ($i = 1; $i <= $this->polymorphicCant; $i++) {
-          $modelName  = $this->ask("Model name number {$i}");
+        for ($i = 1; $i <= $this->polymorphicCant; $i++) 
+        {
+          $modelName  = $this->ask("Write the model name number [{$i}]");
+
           $this->addPolymorphicOneRelation($modelName, 'morphMany', true);
         }
+
         $this->addPolymorphicToRelation();
+
         $this->relationshipWasCreated();
         $this->warnForPolimorphicRelations();
         break;
@@ -214,8 +221,10 @@ class RelationshipsCommand extends Command
         $this->comment(RelationComment::manyToManyPolymorphic());
         $this->askForPolymorphicModelNames();
 
-        for ($i = 1; $i <= $this->polymorphicCant; $i++) {
-          $modelName  = $this->ask("Model name number {$i}");
+        for ($i = 1; $i <= $this->polymorphicCant; $i++) 
+        {
+          $modelName  = $this->ask("Write the model name number [{$i}]");
+
           $this->addManyToManyPolymorphic($modelName);
           $this->addInverseManyToManyPolymorphic($modelName);
         }
@@ -227,6 +236,15 @@ class RelationshipsCommand extends Command
         return 'not found';
         break;
     }
+  }
+
+  // //////////////////////////////////////////// SHOW WARNINGS FOR RELATIONSHIPS 
+
+
+  // Este metodo es el encargado de...
+  private function warnForManyToMany()
+  {
+    $this->warn("\n| Make sure that the pivot table contains the columns of \"".Str::lower($this->parent)."_id\" & \"".Str::lower($this->child)."_id\"");
   }
 
   // Este metodo es el encargado de...
@@ -253,6 +271,15 @@ class RelationshipsCommand extends Command
     $this->info("The relationship \"{$this->type}\" was created");
   }
 
+  // ///////////////////////////////////////////// ASK FOR MODEL NAMES
+
+  // Este metodo es el encargado de...
+  private function askForManyToManyModels()
+  {
+    $this->parent = $this->ask('What is the first model name instance of the relationship?');
+    $this->child  = $this->ask('What is the second model name instance of the relationship?');
+  }
+
   // Este metodo es el encargado de...
   private function askForPolymorphicModelNames()
   {
@@ -274,6 +301,8 @@ class RelationshipsCommand extends Command
     $this->parent = $this->ask('What is the parent model instance of the relationship?');
     $this->child  = $this->ask('What is the child model instance of the relationship?');
   }
+
+  // ///////////////////////////////////////////// TODO: FOR MANY TO MANY POLIMOFPHIC
 
   // Este metodo es el encargado de...
   private function addInverseManyToManyPolymorphic(string $modelName)
@@ -320,7 +349,8 @@ class RelationshipsCommand extends Command
       File::get(__DIR__ . "/stubs/many-to-many-polymorphic.stub")
     );
   }
-  
+
+  // /////////////////////////////////////////////// TODO
 
   // Encargado de limpiar y verificar los nombres de los modelos.
   private function cleanModelName(string $name): string
@@ -335,7 +365,8 @@ class RelationshipsCommand extends Command
     if (!File::exists($path)) {
       if ($this->confirm("The [{$name}] model does not exists. Do you want to create it?", true)) {
         $this->call('make:model', ['name' => $name]);
-      } else {
+      } 
+      else {
         $this->warn("Lo sentimos, pero el modelo {$name} debe existir para poder agregarle la relacion");
         exit;
       }
@@ -343,7 +374,7 @@ class RelationshipsCommand extends Command
     return $name;
   }
 
-  // /////////////////////////////// One To One ( Polymorphic )
+  // /////////////////////////////// TODO: FOR ONE TO ONE POLIMORPHIC
 
   
   // Este metodo es el encargado de...
@@ -391,6 +422,8 @@ class RelationshipsCommand extends Command
     );
   }
 
+  // ////////////////////////////////////// TODO: THROUGH RELATION
+
   // Este metodo es el encargado de...
   private function addThroughRelation(string $stub = 'has-one-through')
   {
@@ -414,6 +447,8 @@ class RelationshipsCommand extends Command
     );
   }
 
+  // ////////////////////////////////////// TODO:
+
   // Este metodo es el encargado de agregar la relacion al modelo padre.
   private function addRelationToParentModel(string $stub, bool $plural = false)
   {
@@ -436,13 +471,13 @@ class RelationshipsCommand extends Command
 
   // Este metodo es el encargado de reemplazar los nombres de los archivos stubs para las 
   // relaciones "Simples", a los nombres de los modelos.
-  private function replaceSimpleRelationNames(string $stub, string $mname, bool $plural = false)
+  private function replaceSimpleRelationNames(string $stub, string $m_name, bool $plural = false)
   {
-    $namefunction = $plural ? Str::plural(Str::lower($m_name)) : Str::lower($m_name);
+    $funcName = $plural ? Str::plural(Str::lower($m_name)) : Str::lower($m_name);
 
     return str_replace(
       ['DummyModel', 'dummyRelationName'],
-      [$m_name, $namefunction],
+      [$m_name, $funcName],
       File::get(__DIR__ . "/stubs/{$stub}.stub")
     );
   }
